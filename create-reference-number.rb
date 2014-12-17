@@ -14,12 +14,13 @@ begin
 	if dbname == "" || fond_id == ""
 		puts "Manca qualche variabile o hai inserito valori non accettati"
 	else
-		# ciclo, prende in esame tutte le cartelle all'interno di img_dir
 		db = SQLite3::Database.new dbname
 		db.results_as_hash = true
+		# seleziona le unita' per cui sia folder_number sia file_number e' presente
 		stm = db.prepare "SELECT * FROM units WHERE folder_number != '' AND file_number != '' AND root_fond_id = :fond_id"
 		rs = stm.execute fond_id
 		rs.each do |row|
+			# calcola la segnatura e la aggiorna nel db
 			reference_number = folder_prefix + " " + row["folder_number"].to_s + " " + file_prefix + " " + row["file_number"].to_s
 			db.execute "UPDATE units SET reference_number = ? WHERE id = ?", reference_number, row["id"]
 		end
